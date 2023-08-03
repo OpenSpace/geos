@@ -168,10 +168,14 @@ GeoJSONFeatureCollection GeoJSONReader::readFeatureCollection(
     return GeoJSONFeatureCollection{std::move(features)};
 }
 
-
 std::unique_ptr<geom::Geometry> GeoJSONReader::readGeometry(
     const geos_nlohmann::json& j) const
 {
+    // Added: Some validity checks that should result in empty (null) objects
+    if (j.is_null() || !j.is_object()) {
+        return std::unique_ptr<geom::Geometry>();
+    }
+
     const std::string& type = j.at("type");
     if (type == "Point") {
         return readPoint(j);
